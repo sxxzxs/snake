@@ -3,6 +3,9 @@ package com.Snake;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -11,6 +14,7 @@ public class Yard extends Frame {
 	public static final int COLS  = 50;
 	public static final int BLOCK_SIZE = 10;
 	Snake snake = new Snake();
+	Image offScreenImage = null;
 	
 	public void launch(){
 		setLocation(200,200);
@@ -24,7 +28,12 @@ public class Yard extends Frame {
 				setVisible(false);
 				System.exit(0);
 			}			
-		});			
+		});		
+		
+		//启动线程
+		new Thread(new PaintThread()).start();
+		//添加监听器
+		this.addKeyListener(new keyMonitor());
 	}
 	
 	public void paint(Graphics g) {
@@ -40,7 +49,48 @@ public class Yard extends Frame {
 			g.drawLine(BLOCK_SIZE * i, 0, BLOCK_SIZE * i, ROWS * BLOCK_SIZE);
 		}
 		
+		//画出snake
 		snake.draw(g);
+	}
+	
+	/*解决双缓冲,没必要深究，截获update,首先把画出来的东西（蛇，Egg）先画在内存的图片中，
+	图片大小和游戏画面一致，然后把内存中图片一次性画到屏幕上（把内存的内容复制到显存）*/
+	@Override
+	public void update(Graphics g) {
+		if(offScreenImage == null) {
+			offScreenImage = this.createImage(COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+		}
+		Graphics gOff = offScreenImage.getGraphics();
+		paint(gOff);
+		g.drawImage(offScreenImage, 0, 0,  null);
+	}
+	
+	//建立一个线程来不断调用repaint()方法
+	private class PaintThread implements Runnable{
+
+		@Override
+		public void run() {			
+			while(true) {
+				repaint();
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+			}
+		}						
+	}
+	
+	//建立一个监听器
+	private class keyMonitor extends KeyAdapter {
+
+		@Override
+		public void keyPressed(KeyEvent e) {			
+			snake.keyPressed(e);
+		}
+		
+		
 	}
 
 	public static void main(String[] args) {
