@@ -14,6 +14,7 @@ public class Yard extends Frame {
 	public static final int COLS  = 50;
 	public static final int BLOCK_SIZE = 10;
 	Snake snake = new Snake();
+	Egg egg =  new Egg();
 	Image offScreenImage = null;
 	
 	public void launch(){
@@ -51,6 +52,10 @@ public class Yard extends Frame {
 		
 		//画出snake
 		snake.draw(g);
+		//画出蛋
+		egg.draw(g);
+		
+		snake.eat(egg);
 	}
 	
 	/*解决双缓冲,没必要深究，截获update,首先把画出来的东西（蛇，Egg）先画在内存的图片中，

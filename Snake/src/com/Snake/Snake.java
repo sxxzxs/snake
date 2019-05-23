@@ -2,6 +2,7 @@ package com.Snake;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 public class Snake {
@@ -88,6 +89,19 @@ public class Snake {
 		tail = tail.pre;
 		tail.next = null;
 				
+	}
+	
+	//吃掉,相当于在头部加一Node，并让蛋重新随机出现
+	public void eat(Egg e) {
+		if(this.getRect().intersects(e.getRect())) {
+			e.reAppear();
+			this.addToHead();		
+		}
+	}
+	
+	//边界检测
+	private Rectangle getRect() {
+		return new Rectangle(Yard.BLOCK_SIZE * head.col, Yard.BLOCK_SIZE * head.row, head.w, head.h);
 	}
 
 	private class Node{
