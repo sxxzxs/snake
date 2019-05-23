@@ -3,14 +3,14 @@ package com.Snake;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
-import java.awt.Paint;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class Yard extends Frame {
-	private static final int ROWS  = 50;
-	private static final int COLS  = 50;
-	private static final int BLOCK_SIZE = 10;
+	public static final int ROWS  = 50;
+	public static final int COLS  = 50;
+	public static final int BLOCK_SIZE = 10;
+	Snake snake = new Snake();
 	
 	public void launch(){
 		setLocation(200,200);
@@ -39,6 +39,8 @@ public class Yard extends Frame {
 		for(int i = 1; i < COLS; i++) {
 			g.drawLine(BLOCK_SIZE * i, 0, BLOCK_SIZE * i, ROWS * BLOCK_SIZE);
 		}
+		
+		snake.draw(g);
 	}
 
 	public static void main(String[] args) {
