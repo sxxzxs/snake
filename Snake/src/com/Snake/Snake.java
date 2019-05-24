@@ -74,7 +74,7 @@ public class Snake {
 		move();
 		for(Node n = head; n != null; n = n.next) {
 			n.draw(g);
-		}				
+		}		
 	}
 	
 	//移动可以看做是在移动方向的头部加一个Node,然后把尾部的Node删掉

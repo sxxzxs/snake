@@ -21,14 +21,15 @@ public class Yard extends Frame {
 	public static final int BLOCK_SIZE = 10;
 	public boolean gameover = false;	//游戏是否结束
 	public int score = 0;
-	public boolean pause = false;
+	public boolean pause = false;	//游戏是否暂停
+	
 	Snake snake = new Snake(this);
 	Egg egg =  new Egg();
 	Image offScreenImage = null;
 	PaintThread paintThread = new PaintThread();
 	private Font fontGameOver = new Font("宋体", Font.BOLD, 50);
 	Image bgImage1=null;	
-	Thread thread = null;
+	
 				
 	public void launch(){
 		setLocation(200,200);
@@ -54,8 +55,7 @@ public class Yard extends Frame {
 		});		
 		
 		//启动线程
-		thread = new Thread(paintThread);
-		thread.start();
+		new Thread(paintThread).start();
 		//添加监听器
 		this.addKeyListener(new keyMonitor());
 	}
@@ -135,10 +135,12 @@ public class Yard extends Frame {
 	//建立一个线程来不断调用repaint()方法
 	private class PaintThread implements Runnable{
 		public boolean running = true;	//线程是否继续运行
+		public boolean flag = false;
 			
 		@Override
 		public void run() {			
-			while(running) {				
+			while(running) {	
+				if(flag) continue;
 				repaint();
 				try {
 					Thread.sleep(50);
@@ -151,16 +153,21 @@ public class Yard extends Frame {
 		
 		public void gameOver() {
 			running = false;
+			
 		}
 		
+		public void flag() {
+			this.flag = true;
+		}
 	
 		
-		public void reStart() {
-			pause = false;
-			snake = new Snake(Yard.this);
-			gameover = false;
+		public void reStart() {		
+			this.flag = false;			
+			gameover = false;			
+			snake = new Snake(Yard.this);	
 			running = true;
 			launch();
+			
 		}
 
 		
@@ -208,8 +215,7 @@ public class Yard extends Frame {
 	public void suspend() {
 		
 		if(true == pause) {
-			pause = false;	
-			repaint();
+			pause = false;				
 		}else {
 			pause = true;
 		} 	
