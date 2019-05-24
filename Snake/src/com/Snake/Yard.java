@@ -1,6 +1,7 @@
 package com.Snake;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -13,14 +14,19 @@ public class Yard extends Frame {
 	public static final int ROWS  = 50;
 	public static final int COLS  = 50;
 	public static final int BLOCK_SIZE = 10;
-	Snake snake = new Snake();
+	public boolean gameover = false;	//游戏是否结束
+	public int score = 0;
+	Snake snake = new Snake(this);
 	Egg egg =  new Egg();
 	Image offScreenImage = null;
+	PaintThread paintThread = new PaintThread();
+	private Font fontGameOver = new Font("宋体", Font.BOLD, 50);
 	
 	public void launch(){
 		setLocation(200,200);
 		setSize(COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
 		setVisible(true);
+		setTitle("岳小佳的蛇皮走位");
 		
 		//添加事件监听，功能:点拔插会关闭窗口
 		addWindowListener(new WindowAdapter() {
@@ -32,7 +38,7 @@ public class Yard extends Frame {
 		});		
 		
 		//启动线程
-		new Thread(new PaintThread()).start();
+		new Thread(paintThread).start();
 		//添加监听器
 		this.addKeyListener(new keyMonitor());
 	}
@@ -40,8 +46,9 @@ public class Yard extends Frame {
 	public void paint(Graphics g) {
 		Color c = g.getColor();
 		g.setColor(Color.GRAY);
-		g.fillRect(0, 0, COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);		
-		g.setColor(c);
+		g.fillRect(0, 0, COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);	
+		g.setColor(Color.DARK_GRAY);
+		
 		//画出横线
 		for(int i = 1; i < ROWS; i++) {
 			g.drawLine(0, BLOCK_SIZE * i, COLS * BLOCK_SIZE, BLOCK_SIZE * i);
@@ -50,12 +57,24 @@ public class Yard extends Frame {
 			g.drawLine(BLOCK_SIZE * i, 0, BLOCK_SIZE * i, ROWS * BLOCK_SIZE);
 		}
 		
+		g.setColor(Color.YELLOW);
+		g.drawString("score:" + score, 10, 60);
+		
+		if(gameover) {
+			g.setFont(fontGameOver);
+			g.drawString("游戏结束", 150, 270);
+			paintThread.gameOver();
+		}
+		
+		g.setColor(c);
+		
 		//画出snake
 		snake.draw(g);
 		//画出蛋
 		egg.draw(g);
 		
 		snake.eat(egg);
+		
 	}
 	
 	/*解决双缓冲,没必要深究，截获update,首先把画出来的东西（蛇，Egg）先画在内存的图片中，
@@ -72,10 +91,10 @@ public class Yard extends Frame {
 	
 	//建立一个线程来不断调用repaint()方法
 	private class PaintThread implements Runnable{
-
+		public boolean running = true;	//线程是否继续运行
 		@Override
 		public void run() {			
-			while(true) {
+			while(running) {
 				repaint();
 				try {
 					Thread.sleep(50);
@@ -83,8 +102,12 @@ public class Yard extends Frame {
 					
 					e.printStackTrace();
 				}
-			}
-		}						
+			}						
+		}	
+		
+		public void gameOver() {
+			running = false;
+		}
 	}
 	
 	//建立一个监听器
@@ -97,10 +120,33 @@ public class Yard extends Frame {
 		
 		
 	}
+	
+	/**
+	 * 拿到所得的分数
+	 * @return 分数
+	 */
+	
+	public int getScore() {
+		return score;
+	}
+	
+	/**
+	 * 设置所得的分数
+	 * @param score 分数
+	 */
+	
+	public void setScore(int score) {
+		this.score = score;
+	}
 
 	public static void main(String[] args) {
 		
 		new Yard().launch();
+	}
+
+	public void stop() {
+		gameover  = true;
+		
 	}
 
 }

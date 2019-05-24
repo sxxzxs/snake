@@ -9,13 +9,15 @@ public class Snake {
 	private Node head  = null;
 	private Node tail = null;
 	private int size = 0;
-
+	private Yard y;
 	
 	private Node node = new Node(20, 30, Dir.D);
-	public Snake() {
+	
+	public Snake(Yard y) {
 		head = node;
 		tail = node;
 		size = 1;
+		this.y = y;
 		
 	}
 	
@@ -79,10 +81,24 @@ public class Snake {
 	private void move() {
 		addToHead();
 		deleteFromTail();
-		
+		checkDead();
 	}
 	
 	
+	private void checkDead() {
+		if(head.row < 3 || head.col < 1 || head.row > Yard.ROWS-2 || head.col > Yard.COLS-2)  {
+			y.stop();
+		}
+		
+		//检测自己与自己有没有相撞
+		for(Node n = head.next; n != null; n = n.next) {
+			if(head.row == n.row && head.col == n.col) {
+				y.stop();
+			}
+		}
+		
+	}
+
 	//从尾部删除
 	private void deleteFromTail() {
 		if(size == 0) return;
@@ -95,7 +111,8 @@ public class Snake {
 	public void eat(Egg e) {
 		if(this.getRect().intersects(e.getRect())) {
 			e.reAppear();
-			this.addToHead();		
+			this.addToHead();
+			y.setScore(y.getScore() + 5);
 		}
 	}
 	
