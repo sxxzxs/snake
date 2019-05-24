@@ -26,7 +26,7 @@ public class Yard extends Frame {
 		setLocation(200,200);
 		setSize(COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
 		setVisible(true);
-		setTitle("岳小佳的蛇皮走位");
+		setTitle("岳小佳的蛇皮走位(按F1可重新开始)");
 		
 		//添加事件监听，功能:点拔插会关闭窗口
 		addWindowListener(new WindowAdapter() {
@@ -55,15 +55,38 @@ public class Yard extends Frame {
 		}
 		for(int i = 1; i < COLS; i++) {
 			g.drawLine(BLOCK_SIZE * i, 0, BLOCK_SIZE * i, ROWS * BLOCK_SIZE);
-		}
+		}		
 		
 		g.setColor(Color.YELLOW);
+		
 		g.drawString("score:" + score, 10, 60);
 		
 		if(gameover) {
 			g.setFont(fontGameOver);
 			g.drawString("游戏结束", 150, 270);
 			paintThread.gameOver();
+		}
+		
+		//new Color(204,204,255)
+		g.setColor(Color.YELLOW);
+		//画出墙
+		//左
+		for(int i = 1;i <ROWS;i++) {
+			g.fillRect(0, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		}
+		
+		//右
+		for(int i = 1;i <ROWS;i++) {
+			g.fillRect((COLS-1) * BLOCK_SIZE , i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+		}
+		
+		//上
+		for(int i = 1; i < COLS;i++) {
+			g.fillRect(i * BLOCK_SIZE, BLOCK_SIZE *3-8,BLOCK_SIZE, BLOCK_SIZE);
+		}
+		
+		for(int i = 1; i < COLS;i++) {
+			g.fillRect(i * BLOCK_SIZE, BLOCK_SIZE * (ROWS-1),BLOCK_SIZE, BLOCK_SIZE);
 		}
 		
 		g.setColor(c);
@@ -92,9 +115,11 @@ public class Yard extends Frame {
 	//建立一个线程来不断调用repaint()方法
 	private class PaintThread implements Runnable{
 		public boolean running = true;	//线程是否继续运行
+		private boolean pause = false;
 		@Override
 		public void run() {			
 			while(running) {
+				if(pause) continue;
 				repaint();
 				try {
 					Thread.sleep(50);
@@ -107,6 +132,18 @@ public class Yard extends Frame {
 		
 		public void gameOver() {
 			running = false;
+		}
+		
+		public void pause() {
+			this.pause = true;
+		}
+		
+		public void reStart() {
+			this.pause = false;
+			snake = new Snake(Yard.this);
+			gameover = false;
+			running = true;
+			launch();
 		}
 	}
 	
@@ -138,15 +175,21 @@ public class Yard extends Frame {
 	public void setScore(int score) {
 		this.score = score;
 	}
+	
+	public void stop() {
+		gameover  = true;
+		
+	}
+
+	public void Restart() {
+		paintThread.reStart();
+		
+	}
 
 	public static void main(String[] args) {
 		
 		new Yard().launch();
 	}
-
-	public void stop() {
-		gameover  = true;
-		
-	}
+	
 
 }

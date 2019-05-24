@@ -163,6 +163,8 @@ public class Snake {
 			if(head.dir != Dir.U)
 				head.dir = Dir.D;
 			break;
+		case KeyEvent.VK_F1:			
+			y.Restart();
 		}
 		
 	}
