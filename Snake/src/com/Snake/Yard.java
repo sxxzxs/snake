@@ -9,6 +9,11 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 
 public class Yard extends Frame {
 	public static final int ROWS  = 50;
@@ -16,17 +21,28 @@ public class Yard extends Frame {
 	public static final int BLOCK_SIZE = 10;
 	public boolean gameover = false;	//游戏是否结束
 	public int score = 0;
+	public boolean pause = false;
 	Snake snake = new Snake(this);
 	Egg egg =  new Egg();
 	Image offScreenImage = null;
 	PaintThread paintThread = new PaintThread();
 	private Font fontGameOver = new Font("宋体", Font.BOLD, 50);
-	
+	Image bgImage1=null;	
+	Thread thread = null;
+				
 	public void launch(){
 		setLocation(200,200);
 		setSize(COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
 		setVisible(true);
-		setTitle("岳小佳的蛇皮走位(按F1可重新开始)");
+		setTitle("岳小佳的蛇皮走位(按F1可重新开始,按空格可暂停)");
+		
+		try {
+			bgImage1=ImageIO.read(new File("E:\\github-filter\\snake\\Snake\\src\\images\\snake.JPG"));//这里特别要注意图片的后缀名称是.jpg还是.gif格式的
+		} catch (IOException e1) {
+			
+			e1.printStackTrace();
+		}
+		
 		
 		//添加事件监听，功能:点拔插会关闭窗口
 		addWindowListener(new WindowAdapter() {
@@ -38,17 +54,19 @@ public class Yard extends Frame {
 		});		
 		
 		//启动线程
-		new Thread(paintThread).start();
+		thread = new Thread(paintThread);
+		thread.start();
 		//添加监听器
 		this.addKeyListener(new keyMonitor());
 	}
 	
-	public void paint(Graphics g) {
+	public void paint(Graphics g) {		
 		Color c = g.getColor();
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);	
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(new Color(183,101,173));		
 		
+		g.drawImage(bgImage1, 0, 0, this);
 		//画出横线
 		for(int i = 1; i < ROWS; i++) {
 			g.drawLine(0, BLOCK_SIZE * i, COLS * BLOCK_SIZE, BLOCK_SIZE * i);
@@ -59,7 +77,9 @@ public class Yard extends Frame {
 		
 		g.setColor(Color.YELLOW);
 		
-		g.drawString("score:" + score, 10, 60);
+		
+		
+		g.drawString("得分: " + score, 10, 60);
 		
 		if(gameover) {
 			g.setFont(fontGameOver);
@@ -115,11 +135,10 @@ public class Yard extends Frame {
 	//建立一个线程来不断调用repaint()方法
 	private class PaintThread implements Runnable{
 		public boolean running = true;	//线程是否继续运行
-		private boolean pause = false;
+			
 		@Override
 		public void run() {			
-			while(running) {
-				if(pause) continue;
+			while(running) {				
 				repaint();
 				try {
 					Thread.sleep(50);
@@ -134,17 +153,17 @@ public class Yard extends Frame {
 			running = false;
 		}
 		
-		public void pause() {
-			this.pause = true;
-		}
+	
 		
 		public void reStart() {
-			this.pause = false;
+			pause = false;
 			snake = new Snake(Yard.this);
 			gameover = false;
 			running = true;
 			launch();
 		}
+
+		
 	}
 	
 	//建立一个监听器
@@ -185,11 +204,24 @@ public class Yard extends Frame {
 		paintThread.reStart();
 		
 	}
+	
+	public void suspend() {
+		
+		if(true == pause) {
+			pause = false;	
+			repaint();
+		}else {
+			pause = true;
+		} 	
+		
+	}
 
 	public static void main(String[] args) {
 		
 		new Yard().launch();
 	}
+
+	
 	
 
 }

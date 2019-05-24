@@ -79,9 +79,11 @@ public class Snake {
 	
 	//移动可以看做是在移动方向的头部加一个Node,然后把尾部的Node删掉
 	private void move() {
+		if(!y.pause) {
 		addToHead();
 		deleteFromTail();
 		checkDead();
+		}
 	}
 	
 	
@@ -165,6 +167,8 @@ public class Snake {
 			break;
 		case KeyEvent.VK_F1:			
 			y.Restart();
+		case KeyEvent.VK_SPACE:
+			y.suspend();
 		}
 		
 	}
